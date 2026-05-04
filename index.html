@@ -354,7 +354,7 @@ STOP po ${included.length} odeslaných akcích. Nepokračuj ani neposílej nic d
             {/* ══ STEP 1 – Typ akce ══════════════════════════════════════════ */}
             {step === 1 && (
               <div style={{ background: WHITE, borderRadius: "8px", padding: "28px", boxShadow: "0 1px 4px #0002", marginBottom: "16px" }}>
-                <SectionLabel num={1} text="Krok 1 – Výběr typu akce" />
+                <SectionLabel num={1} text="Výběr typu akce" />
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
                   {[
                     { key: 'connection', icon: '📨', title: 'Žádost o spojení', desc: 'Navazuji nové spojení (Connection Request)' },
@@ -371,18 +371,13 @@ STOP po ${included.length} odeslaných akcích. Nepokračuj ani neposílej nic d
                     </button>
                   ))}
                 </div>
-                {!actionType && (
-                  <div style={{ marginTop: "16px", fontSize: "12px", color: MID, fontStyle: "italic" }}>
-                    Vyberte jednu z možností pro pokračování.
-                  </div>
-                )}
               </div>
             )}
 
             {/* ══ STEP 2A – Zpráva k žádosti o spojení ══════════════════════ */}
             {step === 2 && actionType === 'connection' && (
               <div style={{ background: WHITE, borderRadius: "8px", padding: "28px", boxShadow: "0 1px 4px #0002", marginBottom: "16px" }}>
-                <SectionLabel num={2} text="Krok 2 – Zpráva k žádosti o spojení" />
+                <SectionLabel num={2} text="Zpráva k žádosti o spojení" />
                 <Badge text="Žádost o spojení" color={BLUE} />
 
                 <div style={{ display: "flex", gap: "8px", margin: "20px 0" }}>
@@ -438,7 +433,7 @@ STOP po ${included.length} odeslaných akcích. Nepokračuj ani neposílej nic d
             {/* ══ STEP 2B – Přímá zpráva ════════════════════════════════════ */}
             {step === 2 && actionType === 'message' && (
               <div style={{ background: WHITE, borderRadius: "8px", padding: "28px", boxShadow: "0 1px 4px #0002", marginBottom: "16px" }}>
-                <SectionLabel num={2} text="Krok 2 – Přímá zpráva" />
+                <SectionLabel num={2} text="Přímá zpráva" />
                 <Badge text="Direct Message" color={RED} />
 
                 <div style={{ display: "flex", gap: "8px", margin: "20px 0" }}>
@@ -479,7 +474,7 @@ STOP po ${included.length} odeslaných akcích. Nepokračuj ani neposílej nic d
             {/* ══ STEP 3 – Nahrání kontaktů ═════════════════════════════════ */}
             {step === 3 && (
               <div style={{ background: WHITE, borderRadius: "8px", padding: "28px", boxShadow: "0 1px 4px #0002", marginBottom: "16px" }}>
-                <SectionLabel num={3} text="Krok 3 – Nahrání kontaktů" />
+                <SectionLabel num={3} text="Nahrání kontaktů" />
 
                 <div style={{ display: "flex", gap: "8px", marginBottom: "24px" }}>
                   <ToggleBtn active={inputMode === 'manual'} onClick={() => setInputMode('manual')}>Manuálně</ToggleBtn>
@@ -582,7 +577,7 @@ STOP po ${included.length} odeslaných akcích. Nepokračuj ani neposílej nic d
             {/* ══ STEP 4 – Generování promptu ═══════════════════════════════ */}
             {step === 4 && (
               <div style={{ background: WHITE, borderRadius: "8px", padding: "28px", boxShadow: "0 1px 4px #0002", marginBottom: "16px" }}>
-                <SectionLabel num={4} text="Krok 4 – Vygenerovat prompt pro agenta" />
+                <SectionLabel num={4} text="Vygenerovat prompt pro agenta" />
 
                 <div style={{ background: LIGHT_BG, borderRadius: "6px", padding: "14px 16px", border: `1px solid ${BORDER}`, marginBottom: "20px", fontSize: "13px", color: DARK, lineHeight: "1.7" }}>
                   <strong>{actionType === 'connection' ? '📨 Žádost o spojení' : '💬 Přímá zpráva'}</strong>
@@ -638,7 +633,7 @@ STOP po ${included.length} odeslaných akcích. Nepokračuj ani neposílej nic d
             {/* ══ STEP 5 – Kopírování & Warning ════════════════════════════ */}
             {step === 5 && (
               <div style={{ background: WHITE, borderRadius: "8px", padding: "28px", boxShadow: "0 1px 4px #0002", marginBottom: "16px" }}>
-                <SectionLabel num={5} text="Krok 5 – Kopírování & Upozornění" />
+                <SectionLabel num={5} text="Kopírování & Upozornění" />
 
                 <button onClick={handleCopy} style={{
                   width: "100%", background: copied ? GREEN_TEXT : RED, color: WHITE, border: "none",
