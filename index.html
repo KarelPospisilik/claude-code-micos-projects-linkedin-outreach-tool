@@ -331,9 +331,7 @@ STOP po ${included.length} odeslaných akcích. Nepokračuj ani neposílej nic d
                 LinkedIn Outreach Tool
               </span>
             </div>
-            <div style={{ display: "flex", alignItems: "center", paddingRight: "28px" }}>
-              <Badge text="v1.0" color={WHITE} />
-            </div>
+            <div />
           </div>
 
           {/* STEP NAV */}
@@ -352,21 +350,6 @@ STOP po ${included.length} odeslaných akcích. Nepokračuj ani neposílej nic d
           </div>
 
           <div style={{ maxWidth: "760px", margin: "0 auto", padding: "28px 20px 60px" }}>
-
-            {/* PROGRESS BAR */}
-            <div style={{ background: WHITE, borderRadius: "8px", padding: "20px 28px", boxShadow: "0 1px 4px #0002", marginBottom: "20px" }}>
-              <div style={{ fontSize: "11px", fontWeight: "700", color: MID, letterSpacing: "1px", textTransform: "uppercase", marginBottom: "16px" }}>
-                Průchod aplikací — 5 kroků
-              </div>
-              <div style={{ display: "flex", alignItems: "flex-start" }}>
-                {STEP_LABELS.map((label, i) => (
-                  <React.Fragment key={i}>
-                    <StepDot num={i + 1} label={label} active={step === i + 1} done={step > i + 1} />
-                    {i < STEP_LABELS.length - 1 && <Connector />}
-                  </React.Fragment>
-                ))}
-              </div>
-            </div>
 
             {/* ══ STEP 1 – Typ akce ══════════════════════════════════════════ */}
             {step === 1 && (
