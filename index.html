@@ -95,6 +95,7 @@
       const [inputMode, setInputMode] = useState('manual');  // 'manual' | 'csv'
       const [contacts, setContacts] = useState([]);
       const [manualInput, setManualInput] = useState('');
+      const [urlValidationError, setUrlValidationError] = useState('');
       const [generatedPrompt, setGeneratedPrompt] = useState('');
       const [copied, setCopied] = useState(false);
       const [apiLoading, setApiLoading] = useState(false);
@@ -280,15 +281,19 @@ STOP po ${included.length} odeslaných akcích. Nepokračuj ani neposílej nic d
 
       // Add manual URLs
       const handleAddUrls = () => {
-        const lines = manualInput.split('\n')
-          .map(l => l.trim())
-          .filter(l => l.includes('linkedin.com/in/'));
+        setUrlValidationError('');
+        const lines = manualInput.split('\n').map(l => l.trim()).filter(Boolean);
+        const valid = lines.filter(l => l.includes('linkedin.com/in/'));
+        const invalid = lines.filter(l => !l.includes('linkedin.com/in/'));
+        if (invalid.length > 0) {
+          setUrlValidationError(`Neplatné LinkedIn URL (musí obsahovat linkedin.com/in/):\n${invalid.join('\n')}`);
+          return;
+        }
         const existing = new Set(contacts.map(c => c.linkedinUrl));
-        const newOnes = lines
+        const newOnes = valid
           .filter(url => !existing.has(url))
           .map(url => ({ firstName: '', lastName: '', company: '', title: '', linkedinUrl: url, included: true }));
         const combined = [...contacts, ...newOnes];
-        // auto-exclude over-limit
         const final = combined.map((c, i) => ({ ...c, included: i < MAX_CONTACTS }));
         setContacts(final);
         setManualInput('');
@@ -497,6 +502,11 @@ STOP po ${included.length} odeslaných akcích. Nepokračuj ani neposílej nic d
                         cursor: manualInput.trim() ? "pointer" : "not-allowed", fontFamily: FONT,
                       }}>+ Přidat kontakty</button>
                     </div>
+                    {urlValidationError && (
+                      <div style={{ marginTop: "10px", background: "#FEF2F2", border: `1px solid #FECACA`, borderRadius: "6px", padding: "10px 14px", fontSize: "12px", color: RED, whiteSpace: "pre-line", lineHeight: "1.6" }}>
+                        ⚠ {urlValidationError}
+                      </div>
+                    )}
                     <div style={{ fontSize: "12px", color: MID, marginTop: "10px", fontStyle: "italic" }}>
                       Z hlediska pravidel na LinkedIn je možné nahrát max. 20 kontaktů.
                     </div>
