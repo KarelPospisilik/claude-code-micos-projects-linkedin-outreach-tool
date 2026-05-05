@@ -474,59 +474,61 @@ STOP po ${included.length} odeslaných akcích. Nepokračuj ani neposílej nic d
             {/* ══ STEP 3 – Nahrání kontaktů ═════════════════════════════════ */}
             {step === 3 && (
               <div style={{ background: WHITE, borderRadius: "8px", padding: "28px", boxShadow: "0 1px 4px #0002", marginBottom: "16px" }}>
-                <SectionLabel num={3} text="Nahrání kontaktů" />
+                <SectionLabel num={3} text="Kontakty" />
 
                 <div style={{ display: "flex", gap: "8px", marginBottom: "24px" }}>
-                  <ToggleBtn active={inputMode === 'manual'} onClick={() => setInputMode('manual')}>Manuálně</ToggleBtn>
-                  <ToggleBtn active={inputMode === 'csv'} onClick={() => setInputMode('csv')}>Import z Apollo (CSV)</ToggleBtn>
+                  <ToggleBtn active={inputMode === 'manual'} onClick={() => setInputMode('manual')}>Nahrát ručně</ToggleBtn>
+                  <ToggleBtn active={inputMode === 'csv'} onClick={() => setInputMode('csv')}>Nahrát z Apollo (CSV)</ToggleBtn>
                 </div>
 
                 {/* Manuální zadání */}
                 {inputMode === 'manual' && (
                   <>
-                    <div style={{ fontSize: "11px", fontWeight: "700", color: MID, letterSpacing: "1px", textTransform: "uppercase", marginBottom: "6px" }}>
-                      LinkedIn URL (jeden na řádek)
-                    </div>
                     <textarea
                       value={manualInput} onChange={e => setManualInput(e.target.value)}
-                      placeholder={"https://linkedin.com/in/jan-novak\nhttps://linkedin.com/in/petr-novotny"}
+                      placeholder={"https://www.linkedin.com/in/jan-novak/\nhttps://www.linkedin.com/in/petr-novotny/\nhttps://www.linkedin.com/in/jana-dvorak/"}
                       rows={5}
                       style={{ width: "100%", border: `1px solid ${BORDER}`, borderRadius: "4px", padding: "10px 12px", fontSize: "13px", fontFamily: FONT, color: DARK, background: WHITE }}
                     />
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "10px" }}>
-                      <div style={{ fontSize: "11px", color: MID, fontStyle: "italic" }}>
-                        URL musí obsahovat linkedin.com/in/
-                      </div>
+                    <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "10px" }}>
                       <button onClick={handleAddUrls} disabled={!manualInput.trim()} style={{
-                        background: manualInput.trim() ? BLUE : BORDER, color: WHITE, border: "none",
+                        background: manualInput.trim() ? RED : BORDER, color: WHITE, border: "none",
                         padding: "10px 20px", borderRadius: "4px", fontWeight: "700", fontSize: "13px",
                         cursor: manualInput.trim() ? "pointer" : "not-allowed", fontFamily: FONT,
                       }}>+ Přidat kontakty</button>
+                    </div>
+                    <div style={{ fontSize: "12px", color: MID, marginTop: "10px", fontStyle: "italic" }}>
+                      Z hlediska pravidel na LinkedIn je možné nahrát max. 20 kontaktů.
                     </div>
                   </>
                 )}
 
                 {/* CSV import */}
                 {inputMode === 'csv' && (
-                  <div
-                    onDrop={handleDrop} onDragOver={e => e.preventDefault()}
-                    onClick={() => csvInputRef.current && csvInputRef.current.click()}
-                    style={{
-                      border: `2px dashed ${BORDER}`, borderRadius: "8px", padding: "40px 32px",
-                      textAlign: "center", background: LIGHT_BG, cursor: "pointer",
-                      transition: "border-color .15s",
-                    }}
-                  >
-                    <div style={{ fontSize: "36px", marginBottom: "12px" }}>📄</div>
-                    <div style={{ fontWeight: "700", color: BLUE, marginBottom: "8px", fontSize: "14px" }}>
-                      Přetáhněte CSV soubor nebo klikněte pro výběr
+                  <>
+                    <div
+                      onDrop={handleDrop} onDragOver={e => e.preventDefault()}
+                      onClick={() => csvInputRef.current && csvInputRef.current.click()}
+                      style={{
+                        border: `2px dashed ${BORDER}`, borderRadius: "8px", padding: "40px 32px",
+                        textAlign: "center", background: LIGHT_BG, cursor: "pointer",
+                        transition: "border-color .15s",
+                      }}
+                    >
+                      <div style={{ fontSize: "36px", marginBottom: "12px" }}>📄</div>
+                      <div style={{ fontWeight: "700", color: BLUE, marginBottom: "8px", fontSize: "14px" }}>
+                        Přetáhněte CSV soubor nebo klikněte pro výběr
+                      </div>
+                      <div style={{ fontSize: "12px", color: MID, lineHeight: "1.6" }}>
+                        Apollo CSV export — sloupce: First Name, Last Name, Company, LinkedIn URL
+                      </div>
+                      <input ref={csvInputRef} type="file" accept=".csv" style={{ display: "none" }}
+                        onChange={e => e.target.files[0] && handleCSV(e.target.files[0])} />
                     </div>
-                    <div style={{ fontSize: "12px", color: MID, lineHeight: "1.6" }}>
-                      Apollo CSV export — sloupce: First Name, Last Name, Company, Title, LinkedIn URL
+                    <div style={{ fontSize: "12px", color: MID, marginTop: "10px", fontStyle: "italic" }}>
+                      Z hlediska pravidel na LinkedIn je možné nahrát max. 20 kontaktů.
                     </div>
-                    <input ref={csvInputRef} type="file" accept=".csv" style={{ display: "none" }}
-                      onChange={e => e.target.files[0] && handleCSV(e.target.files[0])} />
-                  </div>
+                  </>
                 )}
 
                 {/* Seznam kontaktů */}
@@ -534,7 +536,7 @@ STOP po ${included.length} odeslaných akcích. Nepokračuj ani neposílej nic d
                   <div style={{ marginTop: "24px" }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
                       <div style={{ fontSize: "11px", fontWeight: "700", color: MID, letterSpacing: "1px", textTransform: "uppercase" }}>
-                        Kontakty ({includedCount} / {MAX_CONTACTS} zahrnutých)
+                        Seznam nahraných kontaktů ({includedCount} z {MAX_CONTACTS})
                       </div>
                       {contacts.length > MAX_CONTACTS && (
                         <span style={{ fontSize: "11px", color: RED, fontWeight: "700" }}>⚠ Max {MAX_CONTACTS} kontaktů v promptu</span>
