@@ -83,7 +83,7 @@
       }}>{children}</button>
     );
 
-    const STEP_LABELS = ["Typ akce", "Zpráva", "Kontakty", "Prompt", "Kopírování"];
+    const STEP_LABELS = ["Typ akce", "Zpráva", "Kontakty", "Prompt"];
 
     // ─── Main App ───────────────────────────────────────────────────────────────
     function App() {
@@ -220,28 +220,21 @@ LinkedIn: ${contact.linkedinUrl || ''}`;
           : 'Odeslat přímou zprávu (Direct Message)';
 
         const hasTemplate = actionType === 'message' || withMessage;
-        const hasFirstNamePlaceholder = messageText.includes('{{first_name}}');
+        const hasFirstName = messageText.includes('{{first_name}}');
 
         let messagePart;
         if (actionType === 'connection' && !withMessage) {
           messagePart = 'Bez zprávy – odešli pouze žádost o spojení bez connection note.';
         } else {
-          messagePart = 'Zpráva je individuální pro každý kontakt – viz seznam níže.';
+          messagePart = messageText;
         }
 
         const contactLines = included.map((c, i) => {
-          const name = `${c.firstName || ''} ${c.lastName || ''}`.trim() || '—';
+          const name = `${c.firstName || ''} ${c.lastName || ''}`.trim();
           const meta = [c.title, c.company].filter(Boolean).join(', ');
-          let msgLine = '';
-          if (perContactMessages) {
-            msgLine = `\n   Zpráva: "${perContactMessages[i]}"`;
-          } else if (hasTemplate) {
-            const personalizedMsg = messageText.replace(/\{\{first_name\}\}/g, c.firstName || 'there');
-            msgLine = `\n   Zpráva: "${personalizedMsg}"`;
-          }
-          return `${i + 1}. ${name}${meta ? ' | ' + meta : ''} | ${c.linkedinUrl}${msgLine}`;
+          const parts = [name, meta, c.linkedinUrl].filter(Boolean);
+          return `${i + 1}. ${parts.join(' | ')}`;
         }).join('\n');
-
 
         const prompt = `ROLE A KONTEXT
 Jsi LinkedIn asistent. Budeš jednat za uživatele a provádět LinkedIn outreach akce v jeho jménu.
@@ -252,20 +245,20 @@ ${actionLine}
 ZPRÁVA
 ${messagePart}
 
-SEZNAM KONTAKTŮ (${included.length}/${MAX_CONTACTS})
+SEZNAM KONTAKTŮ (${included.length})
 ${contactLines}
 
 INSTRUKCE PRO AGENTA
 • Přihlas se do LinkedIn účtu uživatele
 • Pro každý kontakt v seznamu (v pořadí):
   – Otevři profil dle LinkedIn URL
-  – Odešli ${actionType === 'connection' ? 'žádost o spojení' : 'zprávu'}${hasTemplate ? ' s individuální zprávou přiřazenou ke kontaktu (viz seznam výše)' : ''}
-• Nepřeskakuj kontakty, postupuj jeden po druhém
+  – Odešli ${actionType === 'connection' ? 'žádost o spojení' : 'zprávu'}${hasTemplate ? ' s textem zprávy uvedeným výše' : ''}
+${hasFirstName ? '  – Nahraď {{first_name}} křestním jménem příslušného kontaktu\n' : ''}• Nepřeskakuj kontakty, postupuj jeden po druhém
 • Pokud kontakt nemá dostupný profil nebo akce selže, zaznamenej chybu a pokračuj dalším
 • Po dokončení vygeneruj report: počet úspěšných akcí, seznam chyb
 
-BEZPEČNOSTNÍ LIMIT
-STOP po ${included.length} odeslaných akcích. Nepokračuj ani neposílej nic dalšího bez výslovného potvrzení uživatele.`;
+LIMIT
+Odešli přesně ${included.length} akcí. Poté zastav a čekej na potvrzení uživatele.`;
 
         setGeneratedPrompt(prompt);
         setGenerating(false);
@@ -583,24 +576,25 @@ STOP po ${included.length} odeslaných akcích. Nepokračuj ani neposílej nic d
               </div>
             )}
 
-            {/* ══ STEP 4 – Generování promptu ═══════════════════════════════ */}
+            {/* ══ STEP 4 – Prompt ═══════════════════════════════════════════ */}
             {step === 4 && (
               <div style={{ background: WHITE, borderRadius: "8px", padding: "28px", boxShadow: "0 1px 4px #0002", marginBottom: "16px" }}>
-                <SectionLabel num={4} text="Vygenerovat prompt pro agenta" />
+                <SectionLabel num={4} text="Prompt" />
 
-                <div style={{ background: LIGHT_BG, borderRadius: "6px", padding: "14px 16px", border: `1px solid ${BORDER}`, marginBottom: "20px", fontSize: "13px", color: DARK, lineHeight: "1.7" }}>
-                  <strong>{actionType === 'connection' ? '📨 Žádost o spojení' : '💬 Přímá zpráva'}</strong>
-                  {actionType === 'connection' && !withMessage && ' · bez zprávy'}
-                  {msgMode === 'api' && (actionType === 'message' || withMessage) && ' · individuální zprávy přes Claude API'}
-                  {msgMode === 'manual' && (actionType === 'message' || withMessage) && ' · ručně napsaná zpráva'}
-                  &nbsp;·&nbsp;<strong>{includedCount} kontaktů</strong>
+                <div style={{ marginBottom: "24px" }}>
+                  <div style={{ fontSize: "11px", fontWeight: "700", color: MID, letterSpacing: "1px", textTransform: "uppercase", marginBottom: "12px" }}>Rekapitulace</div>
+                  {[
+                    ['Typ akce', actionType === 'connection' ? 'Žádost o spojení' : 'Odeslat zprávu'],
+                    ['Zpráva', actionType === 'connection' && !withMessage ? 'Bez zprávy' : 'Se zprávou'],
+                    ['Kontakty', inputMode === 'csv' ? 'Nahrané z Apollo' : 'Nahrané ručně'],
+                    ['Počet kontaktů', includedCount],
+                  ].map(([label, value]) => (
+                    <div key={label} style={{ display: "flex", gap: "12px", marginBottom: "6px", fontSize: "13px" }}>
+                      <span style={{ color: MID, minWidth: "140px" }}>{label}:</span>
+                      <span style={{ color: DARK, fontWeight: "600" }}>{value}</span>
+                    </div>
+                  ))}
                 </div>
-
-                {msgMode === 'api' && (actionType === 'message' || withMessage) && (
-                  <div style={{ background: YELLOW_BG, border: `1px solid ${YELLOW_BORDER}`, borderRadius: "6px", padding: "12px 14px", marginBottom: "16px", fontSize: "12px", color: "#92400E" }}>
-                    ⚠ Generování provede {includedCount} volání Claude API ({includedCount} personalizovaných zpráv). Může trvat několik sekund.
-                  </div>
-                )}
 
                 <button onClick={handleGeneratePrompt} disabled={generating} style={{
                   background: generating ? BORDER : RED, color: WHITE, border: "none",
@@ -629,55 +623,27 @@ STOP po ${included.length} odeslaných akcích. Nepokračuj ani neposílej nic d
                         width: "100%", border: `1px solid ${BORDER}`, borderRadius: "4px",
                         padding: "12px", fontSize: "12px", fontFamily: "monospace",
                         color: DARK, background: LIGHT_BG, lineHeight: "1.6",
+                        marginBottom: "16px",
                       }}
                     />
-                    <div style={{ fontSize: "11px", color: MID, marginTop: "6px", fontStyle: "italic" }}>
-                      Kompatibilní s: Claude Code, ChatGPT Agent Mode, Copilot Studio a libovolným AI agentem s přístupem k prohlížeči.
-                    </div>
+                    <button onClick={handleCopy} style={{
+                      width: "100%", background: copied ? "#059669" : RED, color: WHITE, border: "none",
+                      padding: "14px", borderRadius: "6px", fontWeight: "800", fontSize: "14px",
+                      cursor: "pointer", fontFamily: FONT, letterSpacing: "1px", textTransform: "uppercase",
+                      transition: "background .2s", marginBottom: "12px",
+                    }}>
+                      {copied ? '✓ Zkopírováno' : '📋 Kopírovat prompt'}
+                    </button>
+                    <button onClick={resetAll} style={{
+                      width: "100%", background: WHITE, color: BLUE, border: `2px solid ${BLUE}`,
+                      padding: "11px", borderRadius: "4px", fontWeight: "700", fontSize: "13px",
+                      cursor: "pointer", fontFamily: FONT, letterSpacing: "1px", textTransform: "uppercase",
+                    }}>↺ Začít znovu</button>
                   </>
                 )}
               </div>
             )}
 
-            {/* ══ STEP 5 – Kopírování & Warning ════════════════════════════ */}
-            {step === 5 && (
-              <div style={{ background: WHITE, borderRadius: "8px", padding: "28px", boxShadow: "0 1px 4px #0002", marginBottom: "16px" }}>
-                <SectionLabel num={5} text="Kopírování & Upozornění" />
-
-                <button onClick={handleCopy} style={{
-                  width: "100%", background: copied ? GREEN_TEXT : RED, color: WHITE, border: "none",
-                  padding: "16px", borderRadius: "6px", fontWeight: "800", fontSize: "15px",
-                  cursor: "pointer", fontFamily: FONT, letterSpacing: "1px", textTransform: "uppercase",
-                  transition: "background .2s", marginBottom: "20px",
-                }}>
-                  {copied ? '✓ Zkopírováno!' : '📋 Kopírovat prompt'}
-                </button>
-
-                {copied && (
-                  <div style={{ background: YELLOW_BG, border: `2px solid ${YELLOW_BORDER}`, borderRadius: "8px", padding: "20px", marginBottom: "20px" }}>
-                    <div style={{ fontSize: "13px", fontWeight: "800", color: "#92400E", marginBottom: "10px" }}>
-                      ⚠ UPOZORNĚNÍ – LinkedIn limity
-                    </div>
-                    <div style={{ fontSize: "14px", color: "#92400E", lineHeight: "1.7" }}>
-                      Nezapomeň, že můžeš poslat max.&nbsp;<strong>20 žádostí / zpráv denně</strong> a celkem max.&nbsp;<strong>100 žádostí / zpráv týdně!</strong>
-                    </div>
-                    <div style={{ marginTop: "12px", fontSize: "12px", color: "#B45309", borderTop: `1px solid ${YELLOW_BORDER}`, paddingTop: "10px" }}>
-                      Překročení limitu může vést k dočasnému nebo permanentnímu omezení LinkedIn účtu.
-                    </div>
-                  </div>
-                )}
-
-                <div style={{ background: LIGHT_BG, borderRadius: "4px", padding: "12px 14px", border: `1px solid ${BORDER}`, marginBottom: "24px", fontSize: "12px", color: MID, lineHeight: "1.6" }}>
-                  Vlož zkopírovaný prompt do Claude Code, ChatGPT Agent Mode nebo jiného AI agenta s přístupem k prohlížeči.
-                </div>
-
-                <button onClick={resetAll} style={{
-                  width: "100%", background: WHITE, color: BLUE, border: `2px solid ${BLUE}`,
-                  padding: "12px", borderRadius: "4px", fontWeight: "700", fontSize: "13px",
-                  cursor: "pointer", fontFamily: FONT, letterSpacing: "1px", textTransform: "uppercase",
-                }}>↺ Začít znovu</button>
-              </div>
-            )}
 
             {/* NAV BUTTONS */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "8px" }}>
@@ -693,14 +659,14 @@ STOP po ${included.length} odeslaných akcích. Nepokračuj ani neposílej nic d
                 }}>← Předchozí</button>
 
 
-              {step < 5 ? (
+              {step < 4 ? (
                 <button onClick={goNext} disabled={!canGoNext()} style={{
                   background: canGoNext() ? RED : BORDER, color: WHITE, border: "none",
                   padding: "12px 32px", borderRadius: "4px", fontWeight: "700", fontSize: "13px",
                   letterSpacing: "1px", textTransform: "uppercase",
                   cursor: canGoNext() ? "pointer" : "not-allowed", fontFamily: FONT,
                   transition: "background .15s",
-                }}>{step === 1 ? 'Pokračovat na zprávu →' : step === 2 ? 'Pokračovat na kontakty →' : step === 3 ? 'Pokračovat na prompt →' : 'Další →'}</button>
+                }}>{step === 1 ? 'Pokračovat na zprávu →' : step === 2 ? 'Pokračovat na kontakty →' : 'Pokračovat na prompt →'}</button>
               ) : (
                 <div style={{ width: "120px" }} />
               )}
