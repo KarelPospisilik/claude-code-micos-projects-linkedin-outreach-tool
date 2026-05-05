@@ -101,12 +101,13 @@
       const [apiError, setApiError] = useState(null);
       const [generating, setGenerating] = useState(false);
       const [genProgress, setGenProgress] = useState('');
+      const [polishing, setPolishing] = useState(false);
       const csvInputRef = useRef(null);
 
-      // Pre-fill textarea with template when entering step 2
+      // Pre-fill direct message textarea with template when entering step 2
       useEffect(() => {
-        if (step === 2 && !messageText) {
-          setMessageText(actionType === 'connection' ? CONNECTION_NOTE_TEMPLATE : DIRECT_MESSAGE_TEMPLATE);
+        if (step === 2 && !messageText && actionType === 'message') {
+          setMessageText(DIRECT_MESSAGE_TEMPLATE);
         }
       }, [step]);
 
@@ -159,6 +160,23 @@ Name: ${contact.firstName || ''} ${contact.lastName || ''}
 Company: ${contact.company || ''}
 Title: ${contact.title || ''}
 LinkedIn: ${contact.linkedinUrl || ''}`;
+      };
+
+      // Step 2A: polish connection note via Claude
+      const handlePolishMessage = async () => {
+        setPolishing(true); setApiError(null);
+        try {
+          const polishPrompt = `Polish this LinkedIn connection note. Make it natural, warm and professional for modern LinkedIn. Keep it under 300 characters. Output only the polished text — no quotes, no explanation.
+
+Text:
+"${messageText}"`;
+          const polished = await callAPI(polishPrompt);
+          setMessageText(polished);
+        } catch (e) {
+          setApiError('Chyba při uhlazování: ' + e.message);
+        } finally {
+          setPolishing(false);
+        }
       };
 
       // Step 2: generate sample message
@@ -377,54 +395,41 @@ STOP po ${included.length} odeslaných akcích. Nepokračuj ani neposílej nic d
             {/* ══ STEP 2A – Zpráva k žádosti o spojení ══════════════════════ */}
             {step === 2 && actionType === 'connection' && (
               <div style={{ background: WHITE, borderRadius: "8px", padding: "28px", boxShadow: "0 1px 4px #0002", marginBottom: "16px" }}>
-                <SectionLabel num={2} text="Zpráva" />
-                <Badge text="Žádost o spojení" color={BLUE} />
+                <SectionLabel num={2} text="Zpráva k žádosti o spojení" />
 
                 <div style={{ display: "flex", gap: "8px", margin: "20px 0" }}>
                   <ToggleBtn active={!withMessage} onClick={() => { setWithMessage(false); setMessageText(''); }}>Bez zprávy</ToggleBtn>
                   <ToggleBtn active={withMessage} onClick={() => setWithMessage(true)}>Se zprávou</ToggleBtn>
                 </div>
 
-                {!withMessage && (
-                  <div style={{ background: LIGHT_BG, borderRadius: "6px", padding: "14px 16px", border: `1px solid ${BORDER}`, fontSize: "13px", color: MID }}>
-                    Žádost bude odeslána bez connection note. Pokračujte na krok 3.
-                  </div>
-                )}
-
                 {withMessage && (
                   <>
-                    <div style={{ fontSize: "11px", fontWeight: "700", color: MID, letterSpacing: "1px", textTransform: "uppercase", marginBottom: "8px" }}>
-                      Způsob tvorby zprávy
-                    </div>
-                    <div style={{ display: "flex", gap: "8px", marginBottom: "16px" }}>
-                      <ToggleBtn active={msgMode === 'manual'} onClick={() => setMsgMode('manual')}>Napsat ručně</ToggleBtn>
-                      <ToggleBtn active={msgMode === 'api'} onClick={() => setMsgMode('api')}>✨ Claude API</ToggleBtn>
-                    </div>
-
                     <textarea
                       value={messageText} onChange={e => setMessageText(e.target.value)}
-                      placeholder="Napište connection note (max 300 znaků)…"
+                      placeholder="Zde napište text vaší zprávy."
                       rows={4}
                       style={{ width: "100%", border: `1px solid ${BORDER}`, borderRadius: "4px", padding: "10px 12px", fontSize: "13px", fontFamily: FONT, color: DARK, background: WHITE }}
                     />
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "6px" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "8px" }}>
                       <span style={{ fontSize: "11px", color: messageText.length > 300 ? RED : MID }}>
                         {messageText.length} / 300 znaků{messageText.length > 300 ? ' ⚠ překročen limit' : ''}
                       </span>
-                      {msgMode === 'api' && (
-                        <button onClick={handleGenerateSample} disabled={apiLoading} style={{
-                          background: apiLoading ? BORDER : BLUE, color: WHITE, border: "none",
-                          padding: "8px 16px", borderRadius: "4px", fontWeight: "700", fontSize: "12px",
-                          cursor: apiLoading ? "not-allowed" : "pointer", fontFamily: FONT,
-                        }}>{apiLoading ? 'Generuji…' : '✨ Vygenerovat ukázku'}</button>
-                      )}
+                      <div style={{ display: "flex", gap: "8px" }}>
+                        <button onClick={() => setMessageText(CONNECTION_NOTE_TEMPLATE)} style={{
+                          background: WHITE, color: BLUE, border: `2px solid ${BLUE}`,
+                          padding: "7px 14px", borderRadius: "4px", fontWeight: "700", fontSize: "12px",
+                          cursor: "pointer", fontFamily: FONT,
+                        }}>Použít šablonu</button>
+                        {messageText.trim() && (
+                          <button onClick={handlePolishMessage} disabled={polishing} style={{
+                            background: polishing ? BORDER : BLUE, color: WHITE, border: "none",
+                            padding: "7px 14px", borderRadius: "4px", fontWeight: "700", fontSize: "12px",
+                            cursor: polishing ? "not-allowed" : "pointer", fontFamily: FONT,
+                          }}>{polishing ? 'Uhlazuji…' : 'Uhladit zprávu'}</button>
+                        )}
+                      </div>
                     </div>
                     {apiError && <div style={{ color: RED, fontSize: "12px", marginTop: "8px" }}>{apiError}</div>}
-                    {msgMode === 'api' && (
-                      <div style={{ background: LIGHT_BG, borderRadius: "6px", padding: "10px 14px", border: `1px solid ${BORDER}`, marginTop: "12px", fontSize: "12px", color: MID, lineHeight: "1.5" }}>
-                        ℹ Ukázka se vygeneruje pro prvního kontaktu ze seznamu (nebo vzorová data). V kroku 4 bude pro každý kontakt vygenerována personalizovaná verze.
-                      </div>
-                    )}
                   </>
                 )}
               </div>
