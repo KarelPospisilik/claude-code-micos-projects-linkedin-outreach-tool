@@ -354,11 +354,11 @@ STOP po ${included.length} odeslaných akcích. Nepokračuj ani neposílej nic d
             {/* ══ STEP 1 – Typ akce ══════════════════════════════════════════ */}
             {step === 1 && (
               <div style={{ background: WHITE, borderRadius: "8px", padding: "28px", boxShadow: "0 1px 4px #0002", marginBottom: "16px" }}>
-                <SectionLabel num={1} text="Výběr typu akce" />
+                <SectionLabel num={1} text="Typ akce" />
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
                   {[
-                    { key: 'connection', icon: '📨', title: 'Žádost o spojení', desc: 'Navazuji nové spojení (Connection Request)' },
-                    { key: 'message', icon: '💬', title: 'Odeslat zprávu', desc: 'Píšu existujícímu spojení (Direct Message)' },
+                    { key: 'connection', icon: '📨', title: 'Žádost o spojení', desc: 'Navazuji nové spojení (Connection Request).' },
+                    { key: 'message', icon: '💬', title: 'Odeslat zprávu', desc: 'Píšu existujícímu spojení (Direct Message).' },
                   ].map(({ key, icon, title, desc }) => (
                     <button key={key} onClick={() => setActionType(key)} style={{
                       padding: "24px 20px", border: `2px solid ${actionType === key ? BLUE : BORDER}`,
