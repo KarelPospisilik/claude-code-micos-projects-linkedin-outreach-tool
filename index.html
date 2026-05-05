@@ -552,9 +552,6 @@ STOP po ${included.length} odeslaných akcích. Nepokračuj ani neposílej nic d
                             borderBottom: i < contacts.length - 1 ? `1px solid ${BORDER}` : "none",
                             background: !c.included ? "#F9FAFB" : WHITE, opacity: !c.included ? 0.6 : 1,
                           }}>
-                            <input type="checkbox" checked={c.included} onChange={() => toggleContact(i)}
-                              disabled={overLimit}
-                              style={{ accentColor: BLUE, width: "16px", height: "16px", cursor: overLimit ? "not-allowed" : "pointer", flexShrink: 0 }} />
                             <div style={{ flex: 1, minWidth: 0 }}>
                               <div style={{ fontWeight: "700", fontSize: "13px", color: DARK, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{name}</div>
                               {(c.company || c.title) && (
