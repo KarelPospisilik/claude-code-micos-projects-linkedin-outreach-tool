@@ -414,15 +414,17 @@ STOP po ${included.length} odeslaných akcích. Nepokračuj ani neposílej nic d
                       <span style={{ fontSize: "11px", color: messageText.length > 300 ? RED : MID }}>
                         {messageText.length} / 300 znaků{messageText.length > 300 ? ' ⚠ překročen limit' : ''}
                       </span>
-                      <div style={{ display: "flex", gap: "8px" }}>
-                        <button onClick={() => setMessageText(CONNECTION_NOTE_TEMPLATE)} style={{
-                          background: WHITE, color: BLUE, border: `2px solid ${BLUE}`,
-                          padding: "7px 14px", borderRadius: "4px", fontWeight: "700", fontSize: "12px",
-                          cursor: "pointer", fontFamily: FONT,
-                        }}>Použít šablonu</button>
+                      <div>
+                        {!messageText.trim() && (
+                          <button onClick={() => setMessageText(CONNECTION_NOTE_TEMPLATE)} style={{
+                            background: WHITE, color: BLUE, border: `2px solid ${BLUE}`,
+                            padding: "7px 14px", borderRadius: "4px", fontWeight: "700", fontSize: "12px",
+                            cursor: "pointer", fontFamily: FONT,
+                          }}>Použít šablonu</button>
+                        )}
                         {messageText.trim() && (
                           <button onClick={handlePolishMessage} disabled={polishing} style={{
-                            background: polishing ? BORDER : BLUE, color: WHITE, border: "none",
+                            background: polishing ? BORDER : RED, color: WHITE, border: "none",
                             padding: "7px 14px", borderRadius: "4px", fontWeight: "700", fontSize: "12px",
                             cursor: polishing ? "not-allowed" : "pointer", fontFamily: FONT,
                           }}>{polishing ? 'Uhlazuji…' : 'Uhladit zprávu'}</button>
