@@ -691,7 +691,7 @@ STOP po ${included.length} odeslaných akcích. Nepokračuj ani neposílej nic d
                   letterSpacing: "1px", textTransform: "uppercase",
                   cursor: canGoNext() ? "pointer" : "not-allowed", fontFamily: FONT,
                   transition: "background .15s",
-                }}>Další →</button>
+                }}>{step === 1 ? 'Pokračovat na zprávu →' : step === 2 ? 'Pokračovat na kontakty →' : step === 3 ? 'Pokračovat na prompt →' : 'Další →'}</button>
               ) : (
                 <div style={{ width: "120px" }} />
               )}
