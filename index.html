@@ -105,7 +105,9 @@
       const [polishing, setPolishing] = useState(false);
       const csvInputRef = useRef(null);
 
-      useEffect(() => {}, [step]); // placeholder to keep hook order stable
+      useEffect(() => {
+        if (step === 4) handleGeneratePrompt();
+      }, [step]);
 
       const includedContacts = contacts.filter(c => c.included);
       const includedCount = includedContacts.length;
@@ -596,15 +598,11 @@ Odešli přesně ${included.length} akcí. Poté zastav a čekej na potvrzení u
                   ))}
                 </div>
 
-                <button onClick={handleGeneratePrompt} disabled={generating} style={{
-                  background: generating ? BORDER : RED, color: WHITE, border: "none",
-                  padding: "13px 28px", borderRadius: "4px", fontWeight: "700", fontSize: "14px",
-                  cursor: generating ? "not-allowed" : "pointer", fontFamily: FONT,
-                  letterSpacing: "1px", textTransform: "uppercase", marginBottom: "20px",
-                  transition: "background .15s",
-                }}>
-                  {generating ? (genProgress || 'Generuji…') : '✨ Vygenerovat prompt'}
-                </button>
+                {generating && (
+                  <div style={{ fontSize: "13px", color: MID, marginBottom: "16px" }}>
+                    {genProgress || 'Generuji prompt…'}
+                  </div>
+                )}
 
                 {apiError && (
                   <div style={{ color: RED, fontSize: "12px", marginBottom: "12px", padding: "10px 14px", background: "#FEF2F2", borderRadius: "4px", border: "1px solid #FECACA" }}>
