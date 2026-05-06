@@ -632,16 +632,19 @@ Odešli přesně ${included.length} akcí. Poté zastav a čekej na potvrzení u
 
             {/* NAV BUTTONS */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "8px" }}>
-              <button
-                onClick={() => setStep(s => Math.max(1, s - 1))}
-                disabled={step === 1}
-                style={{
-                  background: WHITE, color: step === 1 ? BORDER : BLUE,
-                  border: `2px solid ${step === 1 ? BORDER : BLUE}`,
-                  padding: "12px 24px", borderRadius: "4px", fontWeight: "700", fontSize: "13px",
-                  letterSpacing: "1px", textTransform: "uppercase",
-                  cursor: step === 1 ? "not-allowed" : "pointer", fontFamily: FONT,
-                }}>← Předchozí</button>
+              {step > 1 ? (
+                <button
+                  onClick={() => setStep(s => Math.max(1, s - 1))}
+                  style={{
+                    background: WHITE, color: BLUE,
+                    border: `2px solid ${BLUE}`,
+                    padding: "12px 24px", borderRadius: "4px", fontWeight: "700", fontSize: "13px",
+                    letterSpacing: "1px", textTransform: "uppercase",
+                    cursor: "pointer", fontFamily: FONT,
+                  }}>← Předchozí</button>
+              ) : (
+                <div style={{ width: "120px" }} />
+              )}
 
 
               {step < 4 ? (
